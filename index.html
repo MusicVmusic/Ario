@@ -5,126 +5,2021 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ariobarzan Visualizer — Studio Master V9.5</title>
 <style>
-html,body{
-  margin:0;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  background:#06080a;
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Bebas+Neue&family=Cinzel:wght@400;700&family=Lalezar&family=Montserrat:wght@400;600;700&family=Vazirmatn:wght@400;700&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#06080a;color:#eee;font-family:Vazirmatn,system-ui,sans-serif;height:100vh;overflow:hidden}
+
+.app-container{display:flex;height:100vh;width:100vw;overflow:hidden}
+
+.sidebar-nav{
+width:80px;background:#0d1115;border-left:1px solid #1f262e;
+display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:6px;z-index:100
 }
-#loading{
-  position:fixed;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#06080a;
-  color:#d4af37;
-  font-family:Arial,sans-serif;
-  font-size:18px;
-  z-index:99999;
+
+.nav-btn{
+width:64px;height:58px;background:transparent;border:1px solid transparent;
+border-radius:10px;color:#8f9aa4;font-size:10px;cursor:pointer;
+display:flex;flex-direction:column;align-items:center;justify-content:center;
+gap:4px;transition:all .2s
+}
+
+.nav-btn span.icon{font-size:18px}
+.nav-btn:hover{background:#171c21;color:#fff;border-color:#2a343d}
+.nav-btn.active{
+background:#1f2730;color:#d4af37;border-color:#d4af37;font-weight:bold;
+box-shadow:0 0 10px rgba(212,175,55,.15)
+}
+
+.sidebar-panel{
+width:340px;background:#11151a;border-left:1px solid #1f262e;
+display:flex;flex-direction:column;z-index:90;
+box-shadow:5px 0 25px rgba(0,0,0,.5)
+}
+
+.panel-header{
+padding:14px 16px;background:#161c22;border-bottom:1px solid #222b33;
+font-size:13px;font-weight:bold;color:#d4af37;
+display:flex;justify-content:space-between;align-items:center
+}
+
+.panel-body{flex:1;overflow-y:auto;padding:14px;display:none}
+.panel-body.active{display:block}
+
+.ctrl-group{
+margin-bottom:12px;background:#0a0d10;border:1px solid #1f262e;
+padding:10px;border-radius:8px
+}
+
+.ctrl-group label{
+display:flex;justify-content:space-between;align-items:center;
+font-size:11px;color:#aeb7bf;margin-bottom:6px
+}
+
+.ctrl-group input[type=range]{width:100%;accent-color:#d4af37;cursor:pointer}
+
+.ctrl-group input[type=text],
+.ctrl-group select{
+width:100%;background:#141920;color:#fff;border:1px solid #2c3640;
+border-radius:6px;padding:7px 9px;font-size:11px
+}
+
+.val{
+min-width:38px;text-align:center;direction:ltr;font:600 10px monospace;
+color:#d4af37;background:#141920;padding:2px 5px;border-radius:4px
+}
+
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+button,.file-btn,select{
+background:#192027;color:#fff;border:1px solid #2d3742;
+border-radius:6px;padding:8px 12px;cursor:pointer;font-size:11px
+}
+
+button:hover,.file-btn:hover{
+border-color:#d4af37;background:#222c35
+}
+
+input[type=file]{display:none}
+
+.color-box{display:flex;align-items:center;gap:8px}
+.color-box input[type=color]{
+width:36px;height:26px;border:0;padding:0;background:none;cursor:pointer
+}
+
+.sep{height:1px;background:#202830;margin:12px 0}
+
+.status{
+color:#8f9aa4;font-size:11px;padding:8px;background:#0a0d10;
+border-radius:6px;border:1px solid #1d252e;margin-top:8px
+}
+
+.btn-export{
+background:linear-gradient(135deg,#b18a45,#d4af37);color:#000;
+font-weight:bold;border:none;width:100%;padding:10px;border-radius:6px;margin-top:8px
+}
+
+.btn-export:hover{
+background:linear-gradient(135deg,#d4af37,#f3e5ab)
+}
+
+.stage-container{
+flex:1;display:flex;flex-direction:column;align-items:center;
+justify-content:center;background:#030405;position:relative;
+padding:20px;overflow:hidden
+}
+
+.stage-wrap{
+position:relative;width:100%;max-width:1000px;
+display:flex;flex-direction:column;align-items:center
+}
+
+.stage-box{
+position:relative;width:100%;aspect-ratio:16/9;background:#050607;
+border:2px solid #222a33;border-radius:12px;overflow:hidden;
+box-shadow:0 12px 40px rgba(0,0,0,.9)
+}
+
+.stage-box.r916{aspect-ratio:9/16;max-height:75vh}
+.stage-box.r11{aspect-ratio:1/1;max-height:75vh}
+
+canvas#mainStageCanvas{
+width:100%;height:100%;display:block;object-fit:contain
+}
+
+@media(max-width:900px){
+.app-container{flex-direction:column}
+.sidebar-nav{
+width:100%;height:60px;flex-direction:row;
+justify-content:flex-start;overflow-x:auto;
+border-left:none;border-bottom:1px solid #1f262e
+}
+.sidebar-panel{width:100%;height:250px}
+.stage-container{height:calc(100vh - 310px)}
 }
 </style>
 </head>
 
 <body>
 
-<div id="loading">در حال بارگذاری آریوبرزان...</div>
+<div class="app-container">
+
+<div class="sidebar-nav">
+
+<button class="nav-btn active" onclick="openTab('tab-media',this)">
+<span class="icon">🎬</span><span>رسانه</span>
+</button>
+
+<button class="nav-btn" onclick="openTab('tab-eq',this)">
+<span class="icon">🎚️</span><span>اکولایزر</span>
+</button>
+
+<button class="nav-btn" onclick="openTab('tab-title',this)">
+<span class="icon">✍️</span><span>عنوان</span>
+</button>
+
+<button class="nav-btn" onclick="openTab('tab-artist',this)">
+<span class="icon">🎤</span><span>آرتیست</span>
+</button>
+
+<button class="nav-btn" onclick="openTab('tab-time',this)">
+<span class="icon">⏱️</span><span>زمان</span>
+</button>
+
+<button class="nav-btn" onclick="openTab('tab-timeline',this)">
+<span class="icon">👑</span><span>تاج</span>
+</button>
+
+<button class="nav-btn" onclick="openTab('tab-cover',this)">
+<span class="icon">🖼️</span><span>کاور</span>
+</button>
+
+<button class="nav-btn" onclick="openTab('tab-particles',this)">
+<span class="icon">✨</span><span>ذرات</span>
+</button>
+
+<button class="nav-btn" onclick="openTab('tab-logo',this)">
+<span class="icon">©️</span><span>لوگو</span>
+</button>
+
+<button class="nav-btn" onclick="openTab('tab-fonts',this)">
+<span class="icon">🔤</span><span>فونت</span>
+</button>
+
+</div>
+
+<div class="sidebar-panel">
+
+<div class="panel-header" id="panelTitle">
+🎬 تنظیمات رسانه و خروجی
+</div>
+
+<div id="tab-media" class="panel-body active">
+
+<div class="ctrl-group">
+<label><span>حالت پس‌زمینه (CapCut)</span></label>
+<select id="bgMode">
+<option value="normal" selected>رنگ ساده / تصویر آپلودی</option>
+<option value="greenscreen">🟩 گرین اسکرین (#00FF00)</option>
+<option value="bluescreen">🟦 بلو اسکرین (#0000FF)</option>
+</select>
+</div>
+
+<div class="ctrl-group">
+<label><span>نسبت کادر</span><span class="val" id="ratioVal">16:9</span></label>
+<select id="ratio">
+<option value="16:9">16:9 — افقی (یوتیوب)</option>
+<option value="9:16">9:16 — عمودی (استوری)</option>
+<option value="1:1">1:1 — مربع (پست)</option>
+</select>
+</div>
+
+<div class="ctrl-group">
+<label><span>کیفیت ضبط خروجی</span></label>
+<select id="exportRes">
+<option value="720">720p — HD</option>
+<option value="1080" selected>1080p — Full HD</option>
+<option value="1440">2K — Quad HD</option>
+</select>
+</div>
+
+<div class="ctrl-group">
+<label><span>رنگ پس‌زمینه</span></label>
+<div class="color-box">
+<input id="bgColor" type="color" value="#050607">
+<span class="val" id="bgColorText">#050607</span>
+</div>
+</div>
+
+<div class="sep"></div>
+
+<div class="row">
+<label class="file-btn">🎵 انتخاب موسیقی
+<input id="audioFile" type="file" accept="audio/*">
+</label>
+
+<label class="file-btn">🖼️ عکس پس‌زمینه
+<input id="bgFile" type="file" accept="image/*">
+</label>
+</div>
+
+<div class="row" style="margin-top:8px;">
+<button id="playBtn">▶ پخش</button>
+<button id="pauseBtn">⏸ توقف</button>
+<button id="resetBtn">↺ ریست</button>
+</div>
+
+<button id="exportBtn" class="btn-export">
+🎬 ضبط و دانلود ویدیو (کامل با صدا)
+</button>
+
+<div class="status" id="mediaStatus">
+هنوز موسیقی انتخاب نشده است.
+</div>
+
+</div>
+
+<div id="tab-eq" class="panel-body">
+
+<div class="ctrl-group">
+<label><span>استایل اکولایزر</span></label>
+<select id="eqStyle">
+<option value="sharp">🔪 Sharp — تیز و نوک‌دار</option>
+<option value="epicWave" selected>🌊 Epic Wave — موج سینمایی</option>
+<option value="classic">Classic — میله‌ای ساده</option>
+<option value="rounded">Rounded — میله‌ای گرد</option>
+<option value="segment">Segment — تکه‌ای (دیجیتال)</option>
+<option value="dots">Dots — نقاط کلاسیک</option>
+<option value="vintage">Vintage Dots — نقاط استودیویی</option>
+<option value="dualCenter">↔️ Dual Center — متقارن از مرکز</option>
+<option value="floatingCap">📶 Floating Peaks — قله‌های معلق</option>
+</select>
+</div>
+
+<div class="ctrl-group">
+<label><span>حساسیت صدا</span><span class="val" id="eqSensVal"></span></label>
+<input id="eqSens" type="range" min="10" max="200" value="100">
+</div>
+
+<div class="ctrl-group">
+<label><span>سقف پرتاب (Max)</span><span class="val" id="eqMaxHVal"></span></label>
+<input id="eqMaxH" type="range" min="5" max="100" value="85">
+</div>
+
+<div class="ctrl-group">
+<label><span>مکان X</span><span class="val" id="eqXVal"></span></label>
+<input id="eqX" type="range" min="0" max="100" value="2">
+</div>
+
+<div class="ctrl-group">
+<label><span>مکان Y</span><span class="val" id="eqYVal"></span></label>
+<input id="eqY" type="range" min="0" max="100" value="88">
+</div>
+
+<div class="ctrl-group">
+<label><span>عرض اکولایزر</span><span class="val" id="eqWVal"></span></label>
+<input id="eqW" type="range" min="1" max="100" value="96">
+</div>
+
+<div class="ctrl-group">
+<label><span>ارتفاع کادر</span><span class="val" id="eqHVal"></span></label>
+<input id="eqH" type="range" min="1" max="80" value="18">
+</div>
+
+<div class="ctrl-group">
+<label><span>رنگ ۱ (شروع)</span></label>
+<div class="color-box">
+<input id="eqC1" type="color" value="#19b85a">
+<span class="val" id="eqC1Text">#19b85a</span>
+</div>
+</div>
+
+<div class="ctrl-group">
+<label><span>رنگ ۲ (میانه)</span></label>
+<div class="color-box">
+<input id="eqC2" type="color" value="#ffffff">
+<span class="val" id="eqC2Text">#ffffff</span>
+</div>
+</div>
+
+<div class="ctrl-group">
+<label><span>رنگ ۳ (قله)</span></label>
+<div class="color-box">
+<input id="eqC3" type="color" value="#e33b3b">
+<span class="val" id="eqC3Text">#e33b3b</span>
+</div>
+</div>
+
+</div>
+
+<div id="tab-title" class="panel-body">
+
+<div class="ctrl-group">
+<label><span>نمایش عنوان</span></label>
+<select id="titleShow">
+<option value="on" selected>روشن</option>
+<option value="off">خاموش (برای CapCut)</option>
+</select>
+</div>
+
+<div class="ctrl-group">
+<label><span>متن ترانه</span></label>
+<input id="titleText" type="text" value="ایران ای مرز پرگهر">
+</div>
+
+<div class="ctrl-group">
+<label><span>فونت</span></label>
+<select id="titleFont"></select>
+</div>
+
+<div class="ctrl-group">
+<label><span>مکان X</span><span class="val" id="titleXVal"></span></label>
+<input id="titleX" type="range" min="0" max="100" value="50">
+</div>
+
+<div class="ctrl-group">
+<label><span>مکان Y</span><span class="val" id="titleYVal"></span></label>
+<input id="titleY" type="range" min="0" max="100" value="18">
+</div>
+
+<div class="ctrl-group">
+<label><span>اندازه فونت</span><span class="val" id="titleSizeVal"></span></label>
+<input id="titleSize" type="range" min="8" max="120" value="38">
+</div>
+
+<div class="ctrl-group">
+<label><span>رنگ عنوان</span></label>
+<div class="color-box">
+<input id="titleColor" type="color" value="#ffffff">
+<span class="val" id="titleColorText">#ffffff</span>
+</div>
+</div>
+
+</div>
+
+<div id="tab-artist" class="panel-body">
+
+<div class="ctrl-group">
+<label><span>نمایش آرتیست</span></label>
+<select id="artistShow">
+<option value="on" selected>روشن</option>
+<option value="off">خاموش (برای CapCut)</option>
+</select>
+</div>
+
+<div class="ctrl-group">
+<label><span>متن آرتیست</span></label>
+<input id="artistText" type="text" value="آریوبرزن">
+</div>
+
+<div class="ctrl-group">
+<label><span>فونت</span></label>
+<select id="artistFont"></select>
+</div>
+
+<div class="ctrl-group">
+<label><span>مکان X</span><span class="val" id="artistXVal"></span></label>
+<input id="artistX" type="range" min="0" max="100" value="50">
+</div>
+
+<div class="ctrl-group">
+<label><span>مکان Y</span><span class="val" id="artistYVal"></span></label>
+<input id="artistY" type="range" min="0" max="100" value="26">
+</div>
+
+<div class="ctrl-group">
+<label><span>اندازه فونت</span><span class="val" id="artistSizeVal"></span></label>
+<input id="artistSize" type="range" min="6" max="100" value="22">
+</div>
+
+<div class="ctrl-group">
+<label><span>رنگ آرتیست</span></label>
+<div class="color-box">
+<input id="artistColor" type="color" value="#d4af37">
+<span class="val" id="artistColorText">#d4af37</span>
+</div>
+</div>
+
+</div>
+
+<div id="tab-time" class="panel-body">
+
+<div class="ctrl-group">
+<label><span>فرمت نمایش</span></label>
+<select id="timeFormat">
+<option value="current">زمان فعلی (00:00)</option>
+<option value="currentTotal">فعلی / کل (00:00 / 03:45)</option>
+<option value="remaining">زمان باقی‌مانده (-03:45)</option>
+</select>
+</div>
+
+<div class="ctrl-group">
+<label><span>فونت زمان</span></label>
+<select id="timeFont"></select>
+</div>
+
+<div class="ctrl-group">
+<label><span>مکان X</span><span class="val" id="timeXVal"></span></label>
+<input id="timeX" type="range" min="0" max="100" value="90">
+</div>
+
+<div class="ctrl-group">
+<label><span>مکان Y</span><span class="val" id="timeYVal"></span></label>
+<input id="timeY" type="range" min="0" max="100" value="76">
+</div>
+
+<div class="ctrl-group">
+<label><span>اندازه فونت</span><span class="val" id="timeSizeVal"></span></label>
+<input id="timeSize" type="range" min="8" max="80" value="18">
+</div>
+
+<div class="ctrl-group">
+<label><span>رنگ زمان</span></label>
+<div class="color-box">
+<input id="timeColor" type="color" value="#ffffff">
+<span class="val" id="timeColorText">#ffffff</span>
+</div>
+</div>
+
+</div>
+
+<div id="tab-timeline" class="panel-body">
+
+<div class="ctrl-group">
+<label><span>مکان X نوار</span><span class="val" id="tlXVal"></span></label>
+<input id="tlX" type="range" min="0" max="100" value="10">
+</div>
+
+<div class="ctrl-group">
+<label><span>مکان Y نوار</span><span class="val" id="tlYVal"></span></label>
+<input id="tlY" type="range" min="0" max="100" value="72">
+</div>
+
+<div class="ctrl-group">
+<label><span>عرض نوار</span><span class="val" id="tlWVal"></span></label>
+<input id="tlW" type="range" min="1" max="100" value="80">
+</div>
+
+<div class="ctrl-group">
+<label><span>ضخامت نوار (px)</span><span class="val" id="tlHVal"></span></label>
+<input id="tlH" type="range" min="1" max="25" value="5">
+</div>
+
+<div class="ctrl-group">
+<label><span>رنگ پس‌زمینه نوار</span></label>
+<div class="color-box">
+<input id="tlTrackColor" type="color" value="#30363c">
+<span class="val" id="tlTrackColorText">#30363c</span>
+</div>
+</div>
+
+<div class="ctrl-group">
+<label><span>رنگ پیشرفت نوار</span></label>
+<div class="color-box">
+<input id="tlFillColor" type="color" value="#d4af37">
+<span class="val" id="tlFillColorText">#d4af37</span>
+</div>
+</div>
+
+<div class="ctrl-group">
+<label><span>نمایش تاج</span></label>
+<select id="crownOn">
+<option value="on">روشن</option>
+<option value="off">خاموش</option>
+</select>
+</div>
+
+<div class="ctrl-group">
+<label><span>اندازه تاج</span><span class="val" id="crownSizeVal"></span></label>
+<input id="crownSize" type="range" min="1" max="30" value="6">
+</div>
+
+<div class="ctrl-group">
+<label><span>فاصله عمودی تاج</span><span class="val" id="crownYVal"></span></label>
+<input id="crownY" type="range" min="0" max="100" value="48">
+</div>
+
+<div class="sep"></div>
+
+<div class="row">
+<label class="file-btn">
+👑 آپلود تصویر تاج
+<input id="crownFile" type="file" accept="image/*">
+</label>
+
+<button id="cleanWhiteBtn">✨ حذف پس‌زمینه سفید</button>
+<button id="cleanBlackCrownBtn">✨ حذف پس‌زمینه سیاه</button>
+</div>
+
+</div>
+
+<div id="tab-cover" class="panel-body">
+
+<div class="ctrl-group">
+<label><span>ابعاد کاور</span></label>
+<select id="coverAspect">
+<option value="1:1">1:1 — مربع</option>
+<option value="16:9">16:9 — افقی</option>
+<option value="9:16">9:16 — عمودی</option>
+</select>
+</div>
+
+<div class="ctrl-group">
+<label><span>مکان X</span><span class="val" id="coverXVal"></span></label>
+<input id="coverX" type="range" min="0" max="100" value="50">
+</div>
+
+<div class="ctrl-group">
+<label><span>مکان Y</span><span class="val" id="coverYVal"></span></label>
+<input id="coverY" type="range" min="0" max="100" value="42">
+</div>
+
+<div class="ctrl-group">
+<label><span>اندازه</span><span class="val" id="coverSizeVal"></span></label>
+<input id="coverSize" type="range" min="5" max="80" value="28">
+</div>
+
+<div class="ctrl-group">
+<label><span>انحنا (Radius)</span><span class="val" id="coverRadiusVal"></span></label>
+<input id="coverRadius" type="range" min="0" max="50" value="6">
+</div>
+
+<div class="ctrl-group">
+<label><span>ضخامت حاشیه</span><span class="val" id="coverBorderVal"></span></label>
+<input id="coverBorder" type="range" min="0" max="15" value="2">
+</div>
+
+<div class="ctrl-group">
+<label><span>رنگ حاشیه</span></label>
+<div class="color-box">
+<input id="coverBorderColor" type="color" value="#d4af37">
+<span class="val" id="coverBorderColorText">#d4af37</span>
+</div>
+</div>
+
+<div class="sep"></div>
+
+<label class="file-btn">
+🖼️ آپلود فایل کاور
+<input id="coverFile" type="file" accept="image/*">
+</label>
+
+</div>
+
+<div id="tab-particles" class="panel-body">
+
+<div class="ctrl-group">
+<label><span>وضعیت ذرات</span></label>
+<select id="partEnable">
+<option value="on">روشن</option>
+<option value="off">خاموش</option>
+</select>
+</div>
+
+<div class="ctrl-group">
+<label><span>تعداد ذرات</span><span class="val" id="partCountVal"></span></label>
+<input id="partCount" type="range" min="10" max="250" value="85">
+</div>
+
+<div class="ctrl-group">
+<label><span>اندازه ذرات</span><span class="val" id="partSizeVal"></span></label>
+<input id="partSize" type="range" min="1" max="15" value="3">
+</div>
+
+<div class="ctrl-group">
+<label><span>سرعت حرکت</span><span class="val" id="partSpeedVal"></span></label>
+<input id="partSpeed" type="range" min="1" max="10" value="4">
+</div>
+
+<div class="ctrl-group">
+<label><span>جهت حرکت</span></label>
+<select id="partDir">
+<option value="up" selected>شناور به بالا</option>
+<option value="right">از چپ به راست</option>
+<option value="left">از راست به چپ</option>
+<option value="burst">پخش از مرکز</option>
+</select>
+</div>
+
+<div class="ctrl-group">
+<label><span>رنگ ذرات</span></label>
+<div class="color-box">
+<input id="partColor" type="color" value="#d4af37">
+<span class="val" id="partColorText">#d4af37</span>
+</div>
+</div>
+
+</div>
+
+<div id="tab-logo" class="panel-body">
+
+<div class="ctrl-group">
+<label><span>ابعاد لوگو</span></label>
+<select id="logoAspect">
+<option value="1:1">1:1 — مربع</option>
+<option value="16:9">16:9 — افقی</option>
+<option value="9:16">9:16 — عمودی</option>
+</select>
+</div>
+
+<div class="ctrl-group">
+<label><span>مکان X</span><span class="val" id="logoXVal"></span></label>
+<input id="logoX" type="range" min="0" max="100" value="8">
+</div>
+
+<div class="ctrl-group">
+<label><span>مکان Y</span><span class="val" id="logoYVal"></span></label>
+<input id="logoY" type="range" min="0" max="100" value="88">
+</div>
+
+<div class="ctrl-group">
+<label><span>اندازه</span><span class="val" id="logoSizeVal"></span></label>
+<input id="logoSize" type="range" min="1" max="40" value="8">
+</div>
+
+<div class="sep"></div>
+
+<div class="row">
+<label class="file-btn">
+©️ آپلود فایل لوگو
+<input id="logoFile" type="file" accept="image/*">
+</label>
+
+<button id="cleanLogoWhiteBtn">✨ حذف پس‌زمینه سفید</button>
+<button id="cleanLogoBlackBtn">✨ حذف پس‌زمینه سیاه</button>
+</div>
+
+</div>
+
+<div id="tab-fonts" class="panel-body">
+
+<div class="ctrl-group">
+<label><span>بارگذاری فایل فونت (TTF / OTF)</span></label>
+
+<label class="file-btn" style="margin-top:6px;display:inline-block;">
+➕ بارگذاری فونت
+<input id="fontFile" type="file" accept=".ttf,.otf,.woff,.woff2" multiple>
+</label>
+
+<div class="status" id="fontStatus">
+هنوز فونت سفارشی اضافه نشده است.
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="stage-container">
+
+<div class="stage-wrap">
+
+<div class="stage-box" id="stageBox">
+<canvas id="mainStageCanvas" width="1920" height="1080"></canvas>
+</div>
+
+<div class="status" id="stageStatus" style="width:100%;text-align:center;margin-top:10px;">
+16:9 — Full HD Unified Studio Canvas
+</div>
+
+</div>
+
+</div>
+
+</div>
 
 <script>
-(async function(){
 
-  try{
+const $ = id => document.getElementById(id);
 
-    const response = await fetch(
-      "https://raw.githubusercontent.com/MusicVmusic/Ario/main/index.html?fix=" + Date.now()
-    );
+let audio = new Audio();
 
-    let html = await response.text();
+let audioCtx = null,
+analyser = null,
+sourceNode = null,
+audioDest = null,
+data = null;
 
-    const start = html.indexOf("<script>");
-    const end = html.lastIndexOf("</script>");
+let running = false;
 
-    if(start === -1 || end === -1){
-      throw new Error("Script section not found");
-    }
+const B = 128;
 
-    let js = html.substring(start + 8, end);
+let eqValues = new Float32Array(B);
+let peakValues = new Float32Array(B);
+let bass = 0;
+let particles = [];
+let customFonts = {};
 
-    /*
-      FIX:
-      GitHub فایل اصلی را در یک خط/چند خط محدود نگه داشته
-      و کامنت‌های // باعث می‌شوند بخش‌هایی از JavaScript
-      کامنت یا خراب شوند.
-    */
+let bgImgObj = null;
+let coverImgObj = null;
+let crownImgObj = null;
+let logoImgObj = null;
 
-    const fixes = [
-      "// Image Asset Objects",
-      "// Set resolution based on exportRes and Aspect Ratio",
-      "// 1.\n",
-      "// 2. PARTICLES LAYER",
-      "// 3.\n",
-      "// 4.\n",
-      "// 5.\n",
-      "// 6.\n",
-      "// 7.\n",
-      "// Track Background",
-      "// Progress Fill",
-      "// 8.\n",
-      "// Default Crown SVG",
-      "// Capture master stream directly from Master Canvas",
-      "// START MASTER STUDIO RENDER LOOP"
-    ];
+const englishFonts = [
+["Cinzel","Cinzel"],
+["Playfair Display","Playfair Display"],
+["Montserrat","Montserrat"],
+["Bebas Neue","Bebas Neue"]
+];
 
-    for(const item of fixes){
-      js = js.split(item).join("");
-    }
+const persianFonts = [
+["Vazirmatn","Vazirmatn"],
+["Amiri","Amiri"],
+["Lalezar","Lalezar"]
+];
 
-    /*
-      یک ایراد کوچک دیگر در نسخه فعلی:
-      این خط عملاً لازم نیست.
-    */
-    js = js.replace(
-      'const perGroup = document.label = "Persian Fonts";',
-      'const perGroup = "Persian Fonts";'
-    );
+function openTab(tabId,btnElement){
 
-    /*
-      نسخه اصلاح‌شده را دوباره می‌سازیم.
-    */
-    const fixedHtml =
-      html.substring(0,start + 8) +
-      js +
-      html.substring(end);
+document.querySelectorAll('.panel-body')
+.forEach(panel=>panel.classList.remove('active'));
 
-    document.open();
-    document.write(fixedHtml);
-    document.close();
+document.querySelectorAll('.nav-btn')
+.forEach(btn=>btn.classList.remove('active'));
 
-  }catch(error){
+$(tabId).classList.add('active');
 
-    document.body.innerHTML =
-      '<div style="' +
-      'color:#fff;' +
-      'background:#06080a;' +
-      'height:100vh;' +
-      'display:flex;' +
-      'align-items:center;' +
-      'justify-content:center;' +
-      'font-family:Arial;' +
-      'text-align:center;' +
-      'padding:30px;' +
-      '">' +
-      '<div>' +
-      '<h2 style="color:#d4af37">خطا در بارگذاری</h2>' +
-      '<p>' + error.message + '</p>' +
-      '</div>' +
-      '</div>';
+btnElement.classList.add('active');
 
-    console.error(error);
-  }
+const titleText =
+btnElement.querySelector('span:last-child').textContent;
 
-})();
+$('panelTitle').textContent =
+btnElement.querySelector('span:first-child').textContent+
+' تنظیمات '+titleText;
+}
+
+function bindRange(id){
+
+const input=$(id),
+output=$(id+"Val");
+
+if(!input||!output)return;
+
+function update(){
+output.textContent=input.value;
+}
+
+input.addEventListener("input",update);
+update();
+}
+
+function bindColorText(inputId,textId){
+
+const input=$(inputId),
+text=$(textId);
+
+if(!input||!text)return;
+
+function update(){
+text.textContent=input.value;
+}
+
+input.addEventListener("input",update);
+update();
+}
+
+function hexToRgb(hex){
+
+hex=String(hex||"#ffffff").replace("#","");
+
+if(hex.length===3)
+hex=hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+
+return{
+r:parseInt(hex.substring(0,2),16)||0,
+g:parseInt(hex.substring(2,4),16)||0,
+b:parseInt(hex.substring(4,6),16)||0
+};
+}
+
+function mix(a,b,t){
+
+return{
+r:a.r+(b.r-a.r)*t,
+g:a.g+(b.g-a.g)*t,
+b:a.b+(b.b-a.b)*t
+};
+}
+
+function colorAt(t){
+
+t=Math.max(0,Math.min(1,t));
+
+const c1=hexToRgb($("eqC1").value),
+c2=hexToRgb($("eqC2").value),
+c3=hexToRgb($("eqC3").value);
+
+return t<=.5
+?mix(c1,c2,t*2)
+:mix(c2,c3,(t-.5)*2);
+}
+
+function rgbStr(c){
+
+return `rgb(${Math.round(c.r)},${Math.round(c.g)},${Math.round(c.b)})`;
+}
+
+function fillFontSelect(selectId){
+
+const select=$(selectId);
+
+if(!select)return;
+
+select.innerHTML="";
+
+const customGroup=document.createElement("optgroup");
+customGroup.label="فونت‌های سفارشی";
+select.appendChild(customGroup);
+
+const defaultOpt=document.createElement("option");
+defaultOpt.value="system-ui";
+defaultOpt.textContent="System Default";
+customGroup.appendChild(defaultOpt);
+
+const engGroup=document.createElement("optgroup");
+engGroup.label="English Fonts";
+select.appendChild(engGroup);
+
+englishFonts.forEach(f=>{
+
+const opt=document.createElement("option");
+
+opt.value=f[0];
+opt.textContent=f[1];
+
+engGroup.appendChild(opt);
+
+});
+
+const perGroupEl=document.createElement("optgroup");
+perGroupEl.label="Persian Fonts";
+
+select.appendChild(perGroupEl);
+
+persianFonts.forEach(f=>{
+
+const opt=document.createElement("option");
+
+opt.value=f[0];
+opt.textContent=f[1];
+
+perGroupEl.appendChild(opt);
+
+});
+
+Object.keys(customFonts).forEach(name=>{
+
+const opt=document.createElement("option");
+
+opt.value=name;
+opt.textContent="★ "+name;
+
+customGroup.appendChild(opt);
+
+});
+
+}
+
+function removeBgFromImgObj(imgObj,type="white"){
+
+if(!imgObj)return null;
+
+const offCanvas=document.createElement("canvas");
+const ctx=offCanvas.getContext("2d");
+
+offCanvas.width=imgObj.naturalWidth||imgObj.width||400;
+offCanvas.height=imgObj.naturalHeight||imgObj.height||400;
+
+ctx.drawImage(imgObj,0,0);
+
+const imgData=
+ctx.getImageData(0,0,offCanvas.width,offCanvas.height);
+
+const d=imgData.data;
+
+for(let i=0;i<d.length;i+=4){
+
+const r=d[i],
+g=d[i+1],
+b=d[i+2];
+
+if(type==="white"&&r>210&&g>210&&b>210)
+d[i+3]=0;
+
+else if(type==="black"&&r<40&&g<40&&b<40)
+d[i+3]=0;
+
+}
+
+ctx.putImageData(imgData,0,0);
+
+const cleanImg=new Image();
+
+cleanImg.src=offCanvas.toDataURL();
+
+return cleanImg;
+}
+
+$("cleanWhiteBtn").onclick=()=>{
+if(crownImgObj)
+crownImgObj=removeBgFromImgObj(crownImgObj,"white");
+};
+
+$("cleanBlackCrownBtn").onclick=()=>{
+if(crownImgObj)
+crownImgObj=removeBgFromImgObj(crownImgObj,"black");
+};
+
+$("cleanLogoWhiteBtn").onclick=()=>{
+if(logoImgObj)
+logoImgObj=removeBgFromImgObj(logoImgObj,"white");
+};
+
+$("cleanLogoBlackBtn").onclick=()=>{
+if(logoImgObj)
+logoImgObj=removeBgFromImgObj(logoImgObj,"black");
+};
+
+function initParticles(W,H){
+
+const count=Number($("partCount").value);
+
+particles=[];
+
+for(let i=0;i<count;i++){
+
+particles.push({
+x:Math.random()*W,
+y:Math.random()*H,
+size:Math.random()*Number($("partSize").value)+1,
+speedX:(Math.random()-.5)*1.5,
+speedY:(Math.random()-.5)*1.5,
+alpha:Math.random()
+});
+
+}
+
+}
+
+function renderParticles(ctx,W,H){
+
+if($("partEnable").value!=="on")return;
+
+if(particles.length!==Number($("partCount").value))
+initParticles(W,H);
+
+const baseSpeed=
+Number($("partSpeed").value)*.5;
+
+const boost=1+(bass*2.8);
+
+const dir=$("partDir").value;
+
+ctx.fillStyle=$("partColor").value;
+
+particles.forEach(p=>{
+
+ctx.globalAlpha=p.alpha;
+
+ctx.beginPath();
+
+ctx.arc(
+p.x,
+p.y,
+p.size*(1+bass*.6),
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+if(dir==="up"){
+
+p.y-=(1+p.size*.2)*baseSpeed*boost;
+
+if(p.y<0)p.y=H;
+
+}else if(dir==="right"){
+
+p.x+=(1+p.size*.2)*baseSpeed*boost;
+
+if(p.x>W)p.x=0;
+
+}else if(dir==="left"){
+
+p.x-=(1+p.size*.2)*baseSpeed*boost;
+
+if(p.x<0)p.x=W;
+
+}else if(dir==="burst"){
+
+const angle=Math.atan2(
+p.y-H/2,
+p.x-W/2
+);
+
+p.x+=Math.cos(angle)*baseSpeed*boost*2;
+p.y+=Math.sin(angle)*baseSpeed*boost*2;
+
+if(p.x<0||p.x>W||p.y<0||p.y>H){
+p.x=W/2;
+p.y=H/2;
+}
+
+}
+
+});
+
+ctx.globalAlpha=1;
+}
+
+function formatTime(sec){
+
+if(!isFinite(sec)||sec<0)sec=0;
+
+return Math.floor(sec/60)
+.toString()
+.padStart(2,"0")
++":"+
+Math.floor(sec%60)
+.toString()
+.padStart(2,"0");
+}
+
+function renderMasterStudio(){
+
+const canvas=$("mainStageCanvas");
+const ctx=canvas.getContext("2d");
+
+const res=Number($("exportRes").value);
+const ratio=$("ratio").value;
+
+if(ratio==="9:16"){
+
+canvas.width=Math.round(res*(9/16));
+canvas.height=res;
+
+}else if(ratio==="1:1"){
+
+canvas.width=res;
+canvas.height=res;
+
+}else{
+
+canvas.width=res;
+canvas.height=Math.round(res*(9/16));
+
+}
+
+const W=canvas.width,
+H=canvas.height;
+
+ctx.clearRect(0,0,W,H);
+
+const bgMode=$("bgMode").value;
+
+if(bgMode==="greenscreen"){
+
+ctx.fillStyle="#00FF00";
+ctx.fillRect(0,0,W,H);
+
+}else if(bgMode==="bluescreen"){
+
+ctx.fillStyle="#0000FF";
+ctx.fillRect(0,0,W,H);
+
+}else{
+
+ctx.fillStyle=$("bgColor").value;
+ctx.fillRect(0,0,W,H);
+
+if(bgImgObj&&bgImgObj.complete)
+ctx.drawImage(bgImgObj,0,0,W,H);
+
+}
+
+renderParticles(ctx,W,H);
+
+const cX=(Number($("coverX").value)/100)*W;
+const cY=(Number($("coverY").value)/100)*H;
+
+const cSizeScale=Number($("coverSize").value)/100;
+
+const aspect=$("coverAspect").value;
+
+let cW=Math.min(W,H)*cSizeScale;
+let cH=cW;
+
+if(aspect==="16:9")cH=cW*(9/16);
+else if(aspect==="9:16")cH=cW*(16/9);
+
+ctx.save();
+
+ctx.translate(cX,cY);
+
+const radius=
+(Number($("coverRadius").value)/100)*
+(Math.min(cW,cH)/2);
+
+const borderW=Number($("coverBorder").value);
+
+ctx.beginPath();
+
+ctx.roundRect(
+-cW/2,
+-cH/2,
+cW,
+cH,
+radius
+);
+
+ctx.clip();
+
+if(coverImgObj&&coverImgObj.complete){
+
+ctx.drawImage(
+coverImgObj,
+-cW/2,
+-cH/2,
+cW,
+cH
+);
+
+}else{
+
+ctx.fillStyle="#141920";
+ctx.fillRect(-cW/2,-cH/2,cW,cH);
+
+ctx.fillStyle="#68737d";
+ctx.font="16px sans-serif";
+ctx.textAlign="center";
+ctx.fillText("COVER",0,5);
+
+}
+
+ctx.restore();
+
+if(borderW>0){
+
+ctx.save();
+
+ctx.translate(cX,cY);
+
+ctx.beginPath();
+
+ctx.roundRect(
+-cW/2,
+-cH/2,
+cW,
+cH,
+radius
+);
+
+ctx.lineWidth=borderW*2;
+ctx.strokeStyle=$("coverBorderColor").value;
+ctx.stroke();
+
+ctx.restore();
+
+}
+
+if(analyser&&running){
+
+analyser.getByteFrequencyData(data);
+
+let sum=0;
+
+for(let i=0;i<20;i++)
+sum+=data[i];
+
+bass=sum/(20*255);
+
+const sensitivity=
+Number($("eqSens").value)/100;
+
+const maxLimit=
+Number($("eqMaxH").value)/100;
+
+for(let j=0;j<B;j++){
+
+let rawVal=(data[j]/255)*sensitivity;
+
+let val=Math.min(maxLimit,rawVal);
+
+eqValues[j]=val;
+
+if(val>peakValues[j])
+peakValues[j]=val;
+else
+peakValues[j]=Math.max(0,peakValues[j]-.015);
+
+}
+
+}
+
+const eqX=(Number($("eqX").value)/100)*W;
+const eqY=(Number($("eqY").value)/100)*H;
+const eqW=(Number($("eqW").value)/100)*W;
+const eqH=(Number($("eqH").value)/100)*H;
+
+const style=$("eqStyle").value;
+
+ctx.save();
+
+ctx.translate(eqX,eqY-eqH/2);
+
+if(style==="sharp"){
+
+const barW=(eqW/B)*1.5;
+
+for(let j=0;j<B;j+=2){
+
+let x=(j/B)*eqW;
+let h=eqValues[j]*eqH;
+let t=j/(B-1);
+
+ctx.fillStyle=rgbStr(colorAt(t));
+
+ctx.beginPath();
+
+ctx.moveTo(x+barW/2,eqH-h);
+ctx.lineTo(x+barW,eqH);
+ctx.lineTo(x,eqH);
+
+ctx.closePath();
+ctx.fill();
+
+}
+
+}else if(style==="epicWave"){
+
+ctx.beginPath();
+
+ctx.moveTo(0,eqH);
+
+for(let j=0;j<B;j++){
+
+let x=(j/(B-1))*eqW;
+let y=eqH-(eqValues[j]*eqH);
+
+if(j===0)
+ctx.lineTo(x,y);
+else{
+
+let prevX=((j-1)/(B-1))*eqW;
+let prevY=eqH-(eqValues[j-1]*eqH);
+
+ctx.quadraticCurveTo(
+prevX,
+prevY,
+(prevX+x)/2,
+(prevY+y)/2
+);
+
+}
+
+}
+
+ctx.lineTo(eqW,eqH);
+ctx.closePath();
+
+const grad=ctx.createLinearGradient(0,0,eqW,0);
+
+grad.addColorStop(0,$("eqC1").value);
+grad.addColorStop(.5,$("eqC2").value);
+grad.addColorStop(1,$("eqC3").value);
+
+ctx.fillStyle=grad;
+ctx.shadowColor=$("eqC1").value;
+ctx.shadowBlur=10;
+ctx.fill();
+
+ctx.strokeStyle=$("eqC2").value;
+ctx.lineWidth=2;
+ctx.stroke();
+
+}else if(style==="dualCenter"){
+
+const barW=(eqW/B)*1.5;
+
+for(let j=0;j<B;j+=2){
+
+let x=(j/B)*eqW;
+let h=(eqValues[j]*eqH)/2;
+let t=j/(B-1);
+
+ctx.fillStyle=rgbStr(colorAt(t));
+
+ctx.fillRect(
+x,
+(eqH/2)-h,
+barW,
+h*2
+);
+
+}
+
+}else if(style==="floatingCap"){
+
+const barW=(eqW/B)*1.5;
+
+for(let j=0;j<B;j+=2){
+
+let x=(j/B)*eqW;
+let h=eqValues[j]*eqH;
+let t=j/(B-1);
+
+ctx.fillStyle=rgbStr(colorAt(t));
+
+ctx.fillRect(x,eqH-h,barW,h);
+
+ctx.fillStyle=$("eqC3").value;
+
+ctx.fillRect(
+x,
+eqH-(peakValues[j]*eqH)-3,
+barW,
+2
+);
+
+}
+
+}else if(style==="dots"||style==="vintage"){
+
+const barW=(eqW/B)*1.5;
+const dotSize=Math.max(3,barW*.8);
+
+for(let j=0;j<B;j+=2){
+
+let x=(j/B)*eqW;
+
+let steps=Math.floor(
+(eqValues[j]*eqH)/(dotSize*1.4)
+);
+
+let t=j/(B-1);
+
+for(let k=0;k<steps;k++){
+
+let yy=
+eqH-(k*dotSize*1.4)-dotSize/2;
+
+ctx.fillStyle=
+(style==="vintage"&&k>steps*.8)
+?$("eqC3").value
+:rgbStr(colorAt(t));
+
+ctx.beginPath();
+
+ctx.arc(
+x+barW/2,
+yy,
+dotSize/2,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+}
+
+}
+
+}else if(style==="segment"){
+
+const barW=(eqW/B)*1.5;
+const segH=4;
+const segGap=2;
+
+for(let j=0;j<B;j+=2){
+
+let x=(j/B)*eqW;
+
+let segments=Math.floor(
+(eqValues[j]*eqH)/(segH+segGap)
+);
+
+let t=j/(B-1);
+
+for(let k=0;k<segments;k++){
+
+ctx.fillStyle=rgbStr(colorAt(t));
+
+ctx.fillRect(
+x,
+eqH-(k+1)*segH-k*segGap,
+barW,
+segH
+);
+
+}
+
+}
+
+}else{
+
+const barW=(eqW/B)*1.5;
+
+for(let j=0;j<B;j+=2){
+
+let x=(j/B)*eqW;
+let h=eqValues[j]*eqH;
+let t=j/(B-1);
+
+ctx.fillStyle=rgbStr(colorAt(t));
+
+if(style==="rounded"){
+
+ctx.beginPath();
+
+ctx.roundRect(
+x,
+eqH-h,
+barW,
+h,
+[4,4,0,0]
+);
+
+ctx.fill();
+
+}else{
+
+ctx.fillRect(
+x,
+eqH-h,
+barW,
+h
+);
+
+}
+
+}
+
+}
+
+ctx.restore();
+
+if($("titleShow").value==="on"){
+
+const tX=(Number($("titleX").value)/100)*W;
+const tY=(Number($("titleY").value)/100)*H;
+const tSize=(Number($("titleSize").value)/1080)*H;
+const tFont=$("titleFont").value;
+
+ctx.fillStyle=$("titleColor").value;
+
+ctx.font=
+`bold ${tSize}px "${tFont}", Vazirmatn, sans-serif`;
+
+ctx.textAlign="center";
+ctx.textBaseline="middle";
+
+ctx.shadowColor="rgba(0,0,0,.8)";
+ctx.shadowBlur=8;
+
+ctx.fillText(
+$("titleText").value,
+tX,
+tY
+);
+
+ctx.shadowBlur=0;
+
+}
+
+if($("artistShow").value==="on"){
+
+const aX=(Number($("artistX").value)/100)*W;
+const aY=(Number($("artistY").value)/100)*H;
+const aSize=(Number($("artistSize").value)/1080)*H;
+const aFont=$("artistFont").value;
+
+ctx.fillStyle=$("artistColor").value;
+
+ctx.font=
+`${aSize}px "${aFont}", Vazirmatn, sans-serif`;
+
+ctx.textAlign="center";
+ctx.textBaseline="middle";
+
+ctx.shadowColor="rgba(0,0,0,.8)";
+ctx.shadowBlur=8;
+
+ctx.fillText(
+$("artistText").value,
+aX,
+aY
+);
+
+ctx.shadowBlur=0;
+
+}
+
+const tmX=(Number($("timeX").value)/100)*W;
+const tmY=(Number($("timeY").value)/100)*H;
+const tmSize=(Number($("timeSize").value)/1080)*H;
+const tmFont=$("timeFont").value;
+
+const current=audio.currentTime||0;
+const total=isFinite(audio.duration)?audio.duration:0;
+
+const mode=$("timeFormat").value;
+
+let timeStr=formatTime(current);
+
+if(mode==="currentTotal")
+timeStr=formatTime(current)+" / "+formatTime(total);
+
+else if(mode==="remaining")
+timeStr="-"+formatTime(Math.max(0,total-current));
+
+ctx.fillStyle=$("timeColor").value;
+
+ctx.font=
+`${tmSize}px "${tmFont}", monospace`;
+
+ctx.textAlign="center";
+ctx.textBaseline="middle";
+
+ctx.fillText(timeStr,tmX,tmY);
+
+const tlX=(Number($("tlX").value)/100)*W;
+const tlY=(Number($("tlY").value)/100)*H;
+const tlW=(Number($("tlW").value)/100)*W;
+const tlH=Number($("tlH").value);
+
+let progress=
+(audio&&isFinite(audio.duration)&&audio.duration>0)
+?(audio.currentTime/audio.duration)
+:0;
+
+ctx.fillStyle=$("tlTrackColor").value;
+
+ctx.beginPath();
+
+ctx.roundRect(
+tlX,
+tlY-tlH/2,
+tlW,
+tlH,
+999
+);
+
+ctx.fill();
+
+ctx.fillStyle=$("tlFillColor").value;
+
+ctx.beginPath();
+
+ctx.roundRect(
+tlX,
+tlY-tlH/2,
+tlW*progress,
+tlH,
+999
+);
+
+ctx.fill();
+
+if($("crownOn").value==="on"&&crownImgObj&&crownImgObj.complete){
+
+const crSize=
+(Number($("crownSize").value)/100)*
+Math.min(W,H);
+
+const crX=tlX+(tlW*progress);
+
+const crY=
+tlY+
+((Number($("crownY").value)-50)*.01*H);
+
+ctx.drawImage(
+crownImgObj,
+crX-crSize/2,
+crY-crSize/2,
+crSize,
+crSize
+);
+
+}
+
+if(logoImgObj&&logoImgObj.complete){
+
+const lgX=(Number($("logoX").value)/100)*W;
+const lgY=(Number($("logoY").value)/100)*H;
+
+const lgSize=
+(Number($("logoSize").value)/100)*
+Math.min(W,H);
+
+ctx.drawImage(
+logoImgObj,
+lgX-lgSize/2,
+lgY-lgSize/2,
+lgSize,
+lgSize
+);
+
+}
+
+requestAnimationFrame(renderMasterStudio);
+
+}
+  <script>
+
+async function initAudio(){
+
+if(audioCtx)return;
+
+audioCtx=
+new (window.AudioContext||window.webkitAudioContext)();
+
+analyser=audioCtx.createAnalyser();
+
+analyser.fftSize=1024;
+
+sourceNode=
+audioCtx.createMediaElementSource(audio);
+
+audioDest=
+audioCtx.createMediaStreamDestination();
+
+sourceNode.connect(analyser);
+
+analyser.connect(audioCtx.destination);
+
+sourceNode.connect(audioDest);
+
+data=
+new Uint8Array(analyser.frequencyBinCount);
+
+}
+
+let mediaRecorder=null;
+let recordedChunks=[];
+
+$("exportBtn").onclick=async()=>{
+
+if(!audio.src){
+
+alert("لطفاً ابتدا یک فایل موسیقی انتخاب کنید.");
+
+return;
+
+}
+
+await initAudio();
+
+if(audioCtx.state==="suspended")
+await audioCtx.resume();
+
+audio.currentTime=0;
+
+audio.play();
+
+running=true;
+
+let videoStream=
+$("mainStageCanvas").captureStream(60);
+
+const tracks=[
+...videoStream.getVideoTracks()
+];
+
+if(
+audioDest&&
+audioDest.stream.getAudioTracks().length>0
+){
+
+tracks.push(
+audioDest.stream.getAudioTracks()[0]
+);
+
+}
+
+let mime="video/webm;codecs=vp9,opus";
+
+if(!MediaRecorder.isTypeSupported(mime))
+mime="video/webm";
+
+mediaRecorder=
+new MediaRecorder(
+new MediaStream(tracks),
+{mimeType:mime}
+);
+
+recordedChunks=[];
+
+mediaRecorder.ondataavailable=e=>{
+
+if(e.data.size>0)
+recordedChunks.push(e.data);
+
+};
+
+mediaRecorder.onstop=()=>{
+
+const blob=
+new Blob(
+recordedChunks,
+{type:"video/webm"}
+);
+
+const a=document.createElement("a");
+
+a.href=URL.createObjectURL(blob);
+
+a.download=
+`Ariobarzan_${Date.now()}.webm`;
+
+a.click();
+
+};
+
+mediaRecorder.start();
+
+$("mediaStatus").textContent=
+"🎬 در حال ضبط ویدیو و صدا...";
+
+$("exportBtn").textContent=
+"⏹ توقف و دانلود ویدیو";
+
+$("exportBtn").onclick=()=>{
+
+mediaRecorder.stop();
+
+audio.pause();
+
+running=false;
+
+$("exportBtn").textContent=
+"🎬 ضبط و دانلود ویدیو (کامل با صدا)";
+
+};
+
+};
+
+$("audioFile").onchange=function(){
+
+if(this.files[0]){
+
+audio.src=
+URL.createObjectURL(this.files[0]);
+
+$("mediaStatus").textContent=
+"🎵 آماده: "+this.files[0].name;
+
+}
+
+};
+
+$("bgFile").onchange=function(){
+
+if(this.files[0]){
+
+bgImgObj=new Image();
+
+bgImgObj.src=
+URL.createObjectURL(this.files[0]);
+
+}
+
+};
+
+$("coverFile").onchange=function(){
+
+if(this.files[0]){
+
+coverImgObj=new Image();
+
+coverImgObj.src=
+URL.createObjectURL(this.files[0]);
+
+}
+
+};
+
+$("logoFile").onchange=function(){
+
+if(this.files[0]){
+
+logoImgObj=new Image();
+
+logoImgObj.src=
+URL.createObjectURL(this.files[0]);
+
+}
+
+};
+
+$("crownFile").onchange=function(){
+
+if(this.files[0]){
+
+crownImgObj=new Image();
+
+crownImgObj.onload=()=>{
+
+crownImgObj=
+removeBgFromImgObj(
+crownImgObj,
+"white"
+);
+
+};
+
+crownImgObj.src=
+URL.createObjectURL(this.files[0]);
+
+}
+
+};
+
+crownImgObj=new Image();
+
+crownImgObj.src=
+"data:image/svg+xml;utf8,"+
+"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'>"+
+"<path fill='%23d4af37' d='M256 40l64 128 128-64-48 192H112L64 104l128 64z'/>"+
+"<path fill='%23fff' d='M112 336h288v32H112z'/>"+
+"</svg>";
+
+$("fontFile").onchange=async function(){
+
+const files=
+Array.from(this.files||[]);
+
+if(!files.length)return;
+
+let loaded=0;
+
+for(const file of files){
+
+const name=
+file.name
+.replace(/\.[^/.]+$/,"")
+.replace(/[^a-zA-Z0-9_\- ]/g,"")
+.trim();
+
+const url=
+URL.createObjectURL(file);
+
+try{
+
+const font=
+new FontFace(
+name,
+"url("+url+")"
+);
+
+await font.load();
+
+document.fonts.add(font);
+
+customFonts[name]=true;
+
+loaded++;
+
+}catch(e){}
+
+}
+
+fillFontSelect("titleFont");
+fillFontSelect("artistFont");
+fillFontSelect("timeFont");
+
+$("fontStatus").textContent=
+loaded+" فونت سفارشی بارگذاری شد.";
+
+};
+
+$("playBtn").onclick=async()=>{
+
+await initAudio();
+
+if(audioCtx.state==="suspended")
+await audioCtx.resume();
+
+audio.play();
+
+running=true;
+
+};
+
+$("pauseBtn").onclick=()=>{
+
+audio.pause();
+
+running=false;
+
+};
+
+$("resetBtn").onclick=()=>{
+
+audio.currentTime=0;
+
+};
+
+$("ratio").onchange=function(){
+
+$("ratioVal").textContent=this.value;
+
+const box=$("stageBox");
+
+box.classList.remove("r916","r11");
+
+if(this.value==="9:16")
+box.classList.add("r916");
+
+if(this.value==="1:1")
+box.classList.add("r11");
+
+};
+
+[
+"coverX",
+"coverY",
+"coverSize",
+"coverRadius",
+"coverBorder",
+"logoX",
+"logoY",
+"logoSize",
+"titleX",
+"titleY",
+"titleSize",
+"artistX",
+"artistY",
+"artistSize",
+"timeX",
+"timeY",
+"timeSize",
+"tlX",
+"tlY",
+"tlW",
+"tlH",
+"crownSize",
+"crownY",
+"eqX",
+"eqY",
+"eqW",
+"eqH",
+"eqSens",
+"eqMaxH",
+"partCount",
+"partSize",
+"partSpeed"
+].forEach(bindRange);
+
+[
+["bgColor","bgColorText"],
+["coverBorderColor","coverBorderColorText"],
+["titleColor","titleColorText"],
+["artistColor","artistColorText"],
+["timeColor","timeColorText"],
+["tlTrackColor","tlTrackColorText"],
+["tlFillColor","tlFillColorText"],
+["eqC1","eqC1Text"],
+["eqC2","eqC2Text"],
+["eqC3","eqC3Text"],
+["partColor","partColorText"]
+].forEach(
+p=>bindColorText(p[0],p[1])
+);
+
+fillFontSelect("titleFont");
+fillFontSelect("artistFont");
+fillFontSelect("timeFont");
+
+$("titleFont").value="Cinzel";
+$("artistFont").value="Vazirmatn";
+$("timeFont").value="Cinzel";
+
+requestAnimationFrame(
+renderMasterStudio
+);
+
 </script>
 
 </body>
